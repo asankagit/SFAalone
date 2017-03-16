@@ -1,18 +1,22 @@
 package activities;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.dell.fragmenttest.R;
 
@@ -240,21 +244,24 @@ public class AddExtraCustomer extends AppCompatActivity {
         col_4.setOrientation(LinearLayout.VERTICAL);
         col_5.setOrientation(LinearLayout.VERTICAL);
 
-        /*ol_1.setWeightSum(1.0f);
-        col_2.setWeightSum(2.0f);
-        col_3.setWeightSum(3.0f);
-        col_4.setWeightSum(4.0f);
-        col_5.setWeightSum(5.0f);*/
+        /*col_1.setWeightSum(1.0f);
+        col_2.setWeightSum(4.0f);
+        col_3.setWeightSum(8.0f);
+        col_4.setWeightSum(11.0f);
+        col_5.setWeightSum(14.0f);*/
 
         TableRow.LayoutParams  col_param=new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
         col_param.weight=1.0f;
+        TableRow.LayoutParams  col_param2=new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
+        col_param2.weight=1.0f;
 
         col_1.setLayoutParams(col_param);
         col_2.setLayoutParams(col_param);
         col_3.setLayoutParams(col_param);
         col_4.setLayoutParams(col_param);
-        col_5.setLayoutParams(col_param);
-//new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT)
+        col_5.setLayoutParams(col_param2);
+
+        //new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT)
 
         /*add style to table row*/
         ContextThemeWrapper wrappedContext = new ContextThemeWrapper(this, R.style.pending_customer_row);
@@ -263,6 +270,22 @@ public class AddExtraCustomer extends AppCompatActivity {
         TableRow tr = new TableRow(this);
         tr.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
 
+
+        //add coloum_select
+         final CheckBox cb_select = new CheckBox(wrappedContext);
+        cb_select.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        //cb_select.setBackgroundColor(181);
+        //cb_select.setText("cb");
+        //set ClickEvent Listener for CheckBox;
+        cb_select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //if(cb_select.isChecked()){
+                  getSelectedRows(cb_select.findFocus());//getParent().getParentForAccessibility());
+
+                //}
+            }
+        });
 
 
         //add coloum_cusname
@@ -283,15 +306,13 @@ public class AddExtraCustomer extends AppCompatActivity {
         tv_contact.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
         tv_contact.setText(cus.getContactNo());
 
-        //add coloum_uploadstatus
-        TextView tv_uploadStatus = new TextView(wrappedContext,null,0);
-        tv_uploadStatus.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
-        tv_uploadStatus.setText(cus.getUploadedStatus());
+        //add coloum_town
+        TextView tv_town = new TextView(wrappedContext,null,0);
+        tv_town.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        tv_town.setText(cus.getUploadedStatus());
 
-        //add coloum_aprovedstatus
-        TextView tv_approvedStatus = new TextView(wrappedContext,null,0);
-        tv_approvedStatus.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
-        tv_approvedStatus.setText(cus.getApprovedStatus());
+
+
 
 
 
@@ -302,19 +323,66 @@ public class AddExtraCustomer extends AppCompatActivity {
         //add coloums to row
         col_1.addView(tv_cusName);
         col_2.addView(tv_address);
+        col_4.addView(tv_town);
         col_3.addView(tv_contact);
-        col_4.addView(tv_uploadStatus);
-        col_5.addView(tv_approvedStatus);
+        col_5.addView(cb_select);
 
 
+
+        tr.addView(col_5);
         tr.addView(col_1);
         tr.addView(col_2);
         tr.addView(col_3);
         tr.addView(col_4);
-        tr.addView(col_5);
+
 
 
         // table.addView(tr);
         linearLayout.addView(tr);
+    }
+
+
+
+    public  void getSelectedRows(View row_num) {
+        TableLayout table = (TableLayout) findViewById(R.id.table_add_extra_customer);
+        LinearLayout data_LinearLayout=(LinearLayout) findViewById(R.id.linear_layout_add_ec_data_row);
+
+
+
+        //get selected row;
+        try {
+            int count = 0;
+            for (int i = 0; i < data_LinearLayout.getChildCount(); i++) {
+
+                View parentRow = data_LinearLayout.getChildAt(i);//getTable rows
+                if (parentRow instanceof TableRow) {
+
+                    for (int j = 0; j <2/*((TableRow) parentRow).getChildCount()*/; j++) {//get columns
+                        count++;
+                        View innerLinear= ((TableRow) parentRow).getChildAt(j);//access to column_1
+                        LinearLayout ll=(LinearLayout) innerLinear;//access to column_1 linearLayout
+
+                        View cbox=  ll.getChildAt(0);//access to column_1 checkbox inside LinearLayout
+                        View tb=ll.getChildAt(0);//acess to column 2 cusName textBox;
+
+                        if (cbox instanceof CheckBox) {
+
+                            if(((CheckBox) cbox).isChecked()) {
+                                ((CheckBox) cbox).setText("<");
+
+
+                            }else
+                                ((CheckBox) cbox).setText("");
+                        }
+                        if(tb instanceof  TextView)
+                            Toast.makeText(this,((TextView) tb).getText(),Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+           // Toast.makeText(this, "count:"+count, Toast.LENGTH_LONG).show();
+        }catch (Exception e){
+            Toast.makeText(this,"Error:"+e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
     }
 }
