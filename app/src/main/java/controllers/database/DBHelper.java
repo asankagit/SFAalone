@@ -90,7 +90,7 @@ public class DBHelper extends SQLiteOpenHelper {
         //tr_new cstomer table 23
         db.execSQL(
                 "create table Tr_ItineraryDetails" +
-                        "(_ID integer primary key AUTOINCREMENT ,ItineraryID text,ItineraryDate text,CustomerNo text,IsPlaned text,IsInvoiced text," +
+                        "(_ID integer primary key AUTOINCREMENT ,ItineraryID text,ItineraryDate text,CustomerNo text,IsPlaned integer,IsInvoiced integer," +
                         "LastUpdateDate  text)"
         );
 
@@ -174,6 +174,7 @@ public class DBHelper extends SQLiteOpenHelper {
             return result;
 
     }
+
 
     public  String inserToStockView(String serverid,String principleid,String brand_id,String itemcode,
                                  String batch,String exp,double sellingprice,double retailprice,int qty,String lupdate){

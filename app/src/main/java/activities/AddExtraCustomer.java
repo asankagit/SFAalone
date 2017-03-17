@@ -1,14 +1,13 @@
 package activities;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.ContextThemeWrapper;
 import android.view.View;
-import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
@@ -24,6 +23,7 @@ import java.util.ArrayList;
 
 import controllers.adapters.DBAdapter;
 import controllers.database.DBHelper;
+import model.Tr_ItineraryDetails;
 import model.Tr_NewCustomer;
 
 public class AddExtraCustomer extends AppCompatActivity {
@@ -33,6 +33,7 @@ public class AddExtraCustomer extends AppCompatActivity {
     String area;
     String town;
     String customer_name;
+    Button btn_add_itinerary;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +44,7 @@ public class AddExtraCustomer extends AppCompatActivity {
         spinner_area = (Spinner) findViewById(R.id.spinner_area_ec);
         spinner_town = (Spinner) findViewById(R.id.spinner_town_ec);
         cus_name =(SearchView) findViewById(R.id.search_txt_customer_ec);
+        btn_add_itinerary =(Button) findViewById(R.id.btn_add_itineraray);
 
         spinner_town.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -102,6 +104,13 @@ public class AddExtraCustomer extends AppCompatActivity {
                 //Do searching
             }
 
+        });
+        //set event listenfer for btn add_itinerary
+        btn_add_itinerary.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getSelectedRows();
+            }
         });
 
 
@@ -222,7 +231,7 @@ public class AddExtraCustomer extends AppCompatActivity {
     }
 
 
-    private void update(Tr_NewCustomer cus) {
+    private void update( Tr_NewCustomer cus) {
         TableLayout table = (TableLayout)findViewById(R.id.table_add_extra_customer);
         LinearLayout linearLayout=(LinearLayout) findViewById(R.id.linear_layout_add_ec_data_row);
 
@@ -274,18 +283,17 @@ public class AddExtraCustomer extends AppCompatActivity {
         //add coloum_select
          final CheckBox cb_select = new CheckBox(wrappedContext);
         cb_select.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
-        //cb_select.setBackgroundColor(181);
-        //cb_select.setText("cb");
-        //set ClickEvent Listener for CheckBox;
+
+        /*set ClickEvent Listener for CheckBox;
         cb_select.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //if(cb_select.isChecked()){
-                  getSelectedRows(cb_select.findFocus());//getParent().getParentForAccessibility());
+                  getSelectedRows();//getParent().getParentForAccessibility());
 
                 //}
             }
-        });
+        });*/
 
 
         //add coloum_cusname
@@ -343,9 +351,10 @@ public class AddExtraCustomer extends AppCompatActivity {
 
 
 
-    public  void getSelectedRows(View row_num) {
+    public  void getSelectedRows() {
         TableLayout table = (TableLayout) findViewById(R.id.table_add_extra_customer);
         LinearLayout data_LinearLayout=(LinearLayout) findViewById(R.id.linear_layout_add_ec_data_row);
+        DBAdapter adp=new DBAdapter(this);
 
 
 
@@ -353,6 +362,9 @@ public class AddExtraCustomer extends AppCompatActivity {
         try {
             int count = 0;
             for (int i = 0; i < data_LinearLayout.getChildCount(); i++) {
+                ArrayList<String > cusId=new ArrayList<>();
+                cusId=adp.getCusId();
+
 
                 View parentRow = data_LinearLayout.getChildAt(i);//getTable rows
                 if (parentRow instanceof TableRow) {
@@ -370,12 +382,21 @@ public class AddExtraCustomer extends AppCompatActivity {
                             if(((CheckBox) cbox).isChecked()) {
                                 ((CheckBox) cbox).setText("<");
 
+                                TableRow nametblrow= (TableRow) data_LinearLayout.getChildAt(i);
+                                LinearLayout namell= (LinearLayout) nametblrow.getChildAt(1);
+                                TextView nametv= (TextView) namell.getChildAt(0);
+
+                                //add data to itirnararyDetails;nametv.setText(cusId.get(i));
+                                addToItinerary(cusId.get(i));
+
 
                             }else
                                 ((CheckBox) cbox).setText("");
                         }
-                        if(tb instanceof  TextView)
-                            Toast.makeText(this,((TextView) tb).getText(),Toast.LENGTH_LONG).show();
+                       /* if(tb instanceof  TextView)
+                            Toast.makeText(this,((TextView) tb).getText(),Toast.LENGTH_LONG).show();*/
+
+
                     }
                 }
             }
@@ -383,6 +404,19 @@ public class AddExtraCustomer extends AppCompatActivity {
         }catch (Exception e){
             Toast.makeText(this,"Error:"+e.getMessage(), Toast.LENGTH_LONG).show();
         }
+
+    }
+    private void addToItinerary(String id){
+        Tr_ItineraryDetails itinerary=new Tr_ItineraryDetails();
+        DBAdapter adp=new DBAdapter(this);
+
+        itinerary.setCustomerNo(id);
+        itinerary.setItineraryID("ITRY"+id);
+        itinerary.setIsInvoiced(0);
+        itinerary.setIsPlaned(1);
+
+        Toast.makeText(this, "added:"+id, Toast.LENGTH_LONG).show();
+        adp.itineraryDetails(itinerary);
 
     }
 }
